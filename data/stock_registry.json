@@ -1,0 +1,597 @@
+{
+  "HIMS": {
+    "ticker": "HIMS",
+    "segment": "Healthcare",
+    "name": "Hims & Hers",
+    "description": "Healthcare",
+    "notes": null
+  },
+  "HUMA": {
+    "ticker": "HUMA",
+    "segment": "Healthcare",
+    "name": "Humacyte",
+    "description": "Humacyte, Inc., together with its subsidiaries, engages in the development and manufacture of off-the-shelf, implantable, and bioengineered human tissues for the treatment of diseases and conditions across a range of anatomic locations in multiple therapeutic areas. The company using its proprietary and scientific technology platform to engineer and manufacture human acellular vessels (HAVs) to be implanted into patient without inducing a foreign body response or leading to immune rejection. It is developing a portfolio of HAVs, which would target the vascular repair, reconstruction, and replacement market, including vascular trauma; arteriovenous access for hemodialysis; peripheral arterial disease; pediatric heart surgery; and coronary artery bypass grafting, as well as for the delivery of cellular therapy, including pancreatic islet cell transplantation to treat Type 1 diabetes. The company was founded in 2004 and is headquartered in Durham, North Carolina.",
+    "notes": null
+  },
+  "IONQ": {
+    "ticker": "IONQ",
+    "segment": "Quantum",
+    "name": "IONQ",
+    "description": "Default stock in Quantum segment",
+    "notes": null
+  },
+  "QBTS": {
+    "ticker": "QBTS",
+    "segment": "Quantum",
+    "name": "QBTS",
+    "description": "Default stock in Quantum segment",
+    "notes": null
+  },
+  "RGTI": {
+    "ticker": "RGTI",
+    "segment": "Quantum",
+    "name": "RGTI",
+    "description": "Default stock in Quantum segment",
+    "notes": null
+  },
+  "LAES": {
+    "ticker": "LAES",
+    "segment": "Quantum",
+    "name": "LAES",
+    "description": "Default stock in Quantum segment",
+    "notes": null
+  },
+  "NVDA": {
+    "ticker": "NVDA",
+    "segment": "Chip",
+    "name": "NVDA",
+    "description": "Default stock in Chip segment",
+    "notes": null
+  },
+  "AMD": {
+    "ticker": "AMD",
+    "segment": "Chip",
+    "name": "AMD",
+    "description": "Default stock in Chip segment",
+    "notes": null
+  },
+  "AVGO": {
+    "ticker": "AVGO",
+    "segment": "Chip",
+    "name": "AVGO",
+    "description": "Default stock in Chip segment",
+    "notes": null
+  },
+  "ASML": {
+    "ticker": "ASML",
+    "segment": "Chip",
+    "name": "ASML",
+    "description": "Default stock in Chip segment",
+    "notes": null
+  },
+  "TSM": {
+    "ticker": "TSM",
+    "segment": "Chip",
+    "name": "TSM",
+    "description": "Default stock in Chip segment",
+    "notes": null
+  },
+  "POET": {
+    "ticker": "POET",
+    "segment": "Chip",
+    "name": "POET",
+    "description": "Default stock in Chip segment",
+    "notes": null
+  },
+  "TER": {
+    "ticker": "TER",
+    "segment": "Chip",
+    "name": "TER",
+    "description": "Default stock in Chip segment",
+    "notes": null
+  },
+  "SMCI": {
+    "ticker": "SMCI",
+    "segment": "Chip",
+    "name": "SMCI",
+    "description": "Default stock in Chip segment",
+    "notes": null
+  },
+  "MARA": {
+    "ticker": "MARA",
+    "segment": "Bitcoin Miners",
+    "name": "MARA",
+    "description": "Default stock in Bitcoin Miners segment",
+    "notes": null
+  },
+  "HUT": {
+    "ticker": "HUT",
+    "segment": "Bitcoin Miners",
+    "name": "HUT",
+    "description": "Default stock in Bitcoin Miners segment",
+    "notes": null
+  },
+  "CIFR": {
+    "ticker": "CIFR",
+    "segment": "Bitcoin Miners",
+    "name": "CIFR",
+    "description": "Default stock in Bitcoin Miners segment",
+    "notes": null
+  },
+  "IREN": {
+    "ticker": "IREN",
+    "segment": "Bitcoin Miners",
+    "name": "IREN",
+    "description": "Default stock in Bitcoin Miners segment",
+    "notes": null
+  },
+  "SOUN": {
+    "ticker": "SOUN",
+    "segment": "AI",
+    "name": "SOUN",
+    "description": "Default stock in AI segment",
+    "notes": null
+  },
+  "BBAI": {
+    "ticker": "BBAI",
+    "segment": "AI",
+    "name": "BBAI",
+    "description": "Default stock in AI segment",
+    "notes": null
+  },
+  "CRNC": {
+    "ticker": "CRNC",
+    "segment": "AI",
+    "name": "CRNC",
+    "description": "Default stock in AI segment",
+    "notes": null
+  },
+  "RZLV": {
+    "ticker": "RZLV",
+    "segment": "AI",
+    "name": "RZLV",
+    "description": "Default stock in AI segment",
+    "notes": null
+  },
+  "PYPL": {
+    "ticker": "PYPL",
+    "segment": "Finance",
+    "name": "PYPL",
+    "description": "Default stock in Finance segment",
+    "notes": null
+  },
+  "OPFI": {
+    "ticker": "OPFI",
+    "segment": "Finance",
+    "name": "OPFI",
+    "description": "Default stock in Finance segment",
+    "notes": null
+  },
+  "SOFI": {
+    "ticker": "SOFI",
+    "segment": "Finance",
+    "name": "SOFI",
+    "description": "Default stock in Finance segment",
+    "notes": null
+  },
+  "PGY": {
+    "ticker": "PGY",
+    "segment": "Finance",
+    "name": "PGY",
+    "description": "Default stock in Finance segment",
+    "notes": null
+  },
+  "TW": {
+    "ticker": "TW",
+    "segment": "Finance",
+    "name": "TW",
+    "description": "Default stock in Finance segment",
+    "notes": null
+  },
+  "GOOGL": {
+    "ticker": "GOOGL",
+    "segment": "Tech",
+    "name": "GOOGL",
+    "description": "Default stock in Tech segment",
+    "notes": null
+  },
+  "MSFT": {
+    "ticker": "MSFT",
+    "segment": "Tech",
+    "name": "MSFT",
+    "description": "Default stock in Tech segment",
+    "notes": null
+  },
+  "META": {
+    "ticker": "META",
+    "segment": "Tech",
+    "name": "META",
+    "description": "Default stock in Tech segment",
+    "notes": null
+  },
+  "DOCU": {
+    "ticker": "DOCU",
+    "segment": "Tech",
+    "name": "DOCU",
+    "description": "Default stock in Tech segment",
+    "notes": null
+  },
+  "RDDT": {
+    "ticker": "RDDT",
+    "segment": "Tech",
+    "name": "RDDT",
+    "description": "Default stock in Tech segment",
+    "notes": null
+  },
+  "CAKE": {
+    "ticker": "CAKE",
+    "segment": "E-commerce/Food",
+    "name": "CAKE",
+    "description": "Default stock in E-commerce/Food segment",
+    "notes": null
+  },
+  "SHOP": {
+    "ticker": "SHOP",
+    "segment": "E-commerce/Food",
+    "name": "SHOP",
+    "description": "Default stock in E-commerce/Food segment",
+    "notes": null
+  },
+  "ELF": {
+    "ticker": "ELF",
+    "segment": "E-commerce/Food",
+    "name": "ELF",
+    "description": "Default stock in E-commerce/Food segment",
+    "notes": null
+  },
+  "COST": {
+    "ticker": "COST",
+    "segment": "E-commerce/Food",
+    "name": "COST",
+    "description": "Default stock in E-commerce/Food segment",
+    "notes": null
+  },
+  "NKE": {
+    "ticker": "NKE",
+    "segment": "E-commerce/Food",
+    "name": "NKE",
+    "description": "Default stock in E-commerce/Food segment",
+    "notes": null
+  },
+  "HNST": {
+    "ticker": "HNST",
+    "segment": "Consumer Goods",
+    "name": "HNST",
+    "description": "Default stock in Consumer Goods segment",
+    "notes": null
+  },
+  "WOOF": {
+    "ticker": "WOOF",
+    "segment": "Consumer Goods",
+    "name": "WOOF",
+    "description": "Default stock in Consumer Goods segment",
+    "notes": null
+  },
+  "DAL": {
+    "ticker": "DAL",
+    "segment": "Travel",
+    "name": "DAL",
+    "description": "Default stock in Travel segment",
+    "notes": null
+  },
+  "UAL": {
+    "ticker": "UAL",
+    "segment": "Travel",
+    "name": "UAL",
+    "description": "Default stock in Travel segment",
+    "notes": null
+  },
+  "ABNB": {
+    "ticker": "ABNB",
+    "segment": "Travel",
+    "name": "ABNB",
+    "description": "Default stock in Travel segment",
+    "notes": null
+  },
+  "RKLB": {
+    "ticker": "RKLB",
+    "segment": "Space",
+    "name": "RKLB",
+    "description": "Default stock in Space segment",
+    "notes": null
+  },
+  "ASTS": {
+    "ticker": "ASTS",
+    "segment": "Space",
+    "name": "ASTS",
+    "description": "Default stock in Space segment",
+    "notes": null
+  },
+  "CRWD": {
+    "ticker": "CRWD",
+    "segment": "Cybersecurity",
+    "name": "CRWD",
+    "description": "Default stock in Cybersecurity segment",
+    "notes": null
+  },
+  "DDOG": {
+    "ticker": "DDOG",
+    "segment": "Cybersecurity",
+    "name": "DDOG",
+    "description": "Default stock in Cybersecurity segment",
+    "notes": null
+  },
+  "ALLT": {
+    "ticker": "ALLT",
+    "segment": "Cybersecurity",
+    "name": "ALLT",
+    "description": "Default stock in Cybersecurity segment",
+    "notes": null
+  },
+  "ZS": {
+    "ticker": "ZS",
+    "segment": "Cybersecurity",
+    "name": "ZS",
+    "description": "Default stock in Cybersecurity segment",
+    "notes": null
+  },
+  "NET": {
+    "ticker": "NET",
+    "segment": "Cybersecurity",
+    "name": "NET",
+    "description": "Default stock in Cybersecurity segment",
+    "notes": null
+  },
+  "OKTA": {
+    "ticker": "OKTA",
+    "segment": "Cybersecurity",
+    "name": "OKTA",
+    "description": "Default stock in Cybersecurity segment",
+    "notes": null
+  },
+  "VST": {
+    "ticker": "VST",
+    "segment": "Energy",
+    "name": "VST",
+    "description": "Default stock in Energy segment",
+    "notes": null
+  },
+  "OKLO": {
+    "ticker": "OKLO",
+    "segment": "Energy",
+    "name": "OKLO",
+    "description": "Default stock in Energy segment",
+    "notes": null
+  },
+  "CEG": {
+    "ticker": "CEG",
+    "segment": "Energy",
+    "name": "CEG",
+    "description": "Default stock in Energy segment",
+    "notes": null
+  },
+  "TLN": {
+    "ticker": "TLN",
+    "segment": "Energy",
+    "name": "TLN",
+    "description": "Default stock in Energy segment",
+    "notes": null
+  },
+  "ASPI": {
+    "ticker": "ASPI",
+    "segment": "Energy",
+    "name": "ASPI",
+    "description": "Default stock in Energy segment",
+    "notes": null
+  },
+  "AMT": {
+    "ticker": "AMT",
+    "segment": "5G",
+    "name": "AMT",
+    "description": "Default stock in 5G segment",
+    "notes": null
+  },
+  "TTD": {
+    "ticker": "TTD",
+    "segment": "Ad-tech",
+    "name": "TTD",
+    "description": "Default stock in Ad-tech segment",
+    "notes": null
+  },
+  "AUR": {
+    "ticker": "AUR",
+    "segment": "Transport",
+    "name": "AUR",
+    "description": "Default stock in Transport segment",
+    "notes": null
+  },
+  "SERV": {
+    "ticker": "SERV",
+    "segment": "Robotics",
+    "name": "SERV",
+    "description": "Default stock in Robotics segment",
+    "notes": null
+  },
+  "SYM": {
+    "ticker": "SYM",
+    "segment": "Robotics",
+    "name": "SYM",
+    "description": "Default stock in Robotics segment",
+    "notes": null
+  },
+  "KMX": {
+    "ticker": "KMX",
+    "segment": "Car E-commerce",
+    "name": "KMX",
+    "description": "Default stock in Car E-commerce segment",
+    "notes": null
+  },
+  "CVNA": {
+    "ticker": "CVNA",
+    "segment": "Car E-commerce",
+    "name": "CVNA",
+    "description": "Default stock in Car E-commerce segment",
+    "notes": null
+  },
+  "ONON": {
+    "ticker": "ONON",
+    "segment": "Shoe/Apparel",
+    "name": "ONON",
+    "description": "Default stock in Shoe/Apparel segment",
+    "notes": null
+  },
+  "PRVA": {
+    "ticker": "PRVA",
+    "segment": "Health Tech",
+    "name": "PRVA",
+    "description": "Default stock in Health Tech segment",
+    "notes": null
+  },
+  "OSCR": {
+    "ticker": "OSCR",
+    "segment": "Health Tech",
+    "name": "OSCR",
+    "description": "Default stock in Health Tech segment",
+    "notes": null
+  },
+  "RXRX": {
+    "ticker": "RXRX",
+    "segment": "Health Tech",
+    "name": "RXRX",
+    "description": "Default stock in Health Tech segment",
+    "notes": null
+  },
+  "ANET": {
+    "ticker": "ANET",
+    "segment": "Cloud Tech",
+    "name": "ANET",
+    "description": "Default stock in Cloud Tech segment",
+    "notes": null
+  },
+  "LB": {
+    "ticker": "LB",
+    "segment": "Oil and Gas",
+    "name": "LB",
+    "description": "Default stock in Oil and Gas segment",
+    "notes": null
+  },
+  "NBIS": {
+    "ticker": "NBIS",
+    "segment": "Data Centers",
+    "name": "NBIS",
+    "description": "Default stock in Data Centers segment",
+    "notes": null
+  },
+  "APLD": {
+    "ticker": "APLD",
+    "segment": "Data Centers",
+    "name": "APLD",
+    "description": "Default stock in Data Centers segment",
+    "notes": null
+  },
+  "INOD": {
+    "ticker": "INOD",
+    "segment": "Data Analytics",
+    "name": "INOD",
+    "description": "Default stock in Data Analytics segment",
+    "notes": null
+  },
+  "PLTR": {
+    "ticker": "PLTR",
+    "segment": "Data Analytics",
+    "name": "PLTR",
+    "description": "Default stock in Data Analytics segment",
+    "notes": null
+  },
+  "VERI": {
+    "ticker": "VERI",
+    "segment": "Data Analytics",
+    "name": "VERI",
+    "description": "Default stock in Data Analytics segment",
+    "notes": null
+  },
+  "GEOS": {
+    "ticker": "GEOS",
+    "segment": "Minerals Tech",
+    "name": "GEOS",
+    "description": "Default stock in Minerals Tech segment",
+    "notes": null
+  },
+  "TMC": {
+    "ticker": "TMC",
+    "segment": "Minerals Tech",
+    "name": "TMC",
+    "description": "Default stock in Minerals Tech segment",
+    "notes": null
+  },
+  "USAR": {
+    "ticker": "USAR",
+    "segment": "Minerals Tech",
+    "name": "USAR",
+    "description": "Default stock in Minerals Tech segment",
+    "notes": null
+  },
+  "UNH": {
+    "ticker": "UNH",
+    "segment": "Healthcare",
+    "name": "UNH",
+    "description": "Default stock in Healthcare segment",
+    "notes": null
+  },
+  "NUVB": {
+    "ticker": "NUVB",
+    "segment": "Healthcare",
+    "name": "NUVB",
+    "description": "Default stock in Healthcare segment",
+    "notes": null
+  },
+  "EYEN": {
+    "ticker": "EYEN",
+    "segment": "Healthcare",
+    "name": "EYEN",
+    "description": "Default stock in Healthcare segment",
+    "notes": null
+  },
+  "NLSP": {
+    "ticker": "NLSP",
+    "segment": "Healthcare",
+    "name": "NLSP",
+    "description": "Default stock in Healthcare segment",
+    "notes": null
+  },
+  "TNXP": {
+    "ticker": "TNXP",
+    "segment": "Healthcare",
+    "name": "TNXP",
+    "description": "Default stock in Healthcare segment",
+    "notes": null
+  },
+  "CAVA": {
+    "ticker": "CAVA",
+    "segment": "Food/Restaurants",
+    "name": "CAVA",
+    "description": "Default stock in Food/Restaurants segment",
+    "notes": null
+  },
+  "SHAK": {
+    "ticker": "SHAK",
+    "segment": "Food/Restaurants",
+    "name": "SHAK",
+    "description": "Default stock in Food/Restaurants segment",
+    "notes": null
+  },
+  "QUBT": {
+    "ticker": "QUBT",
+    "segment": "Quantum",
+    "name": "Quantum Computing",
+    "description": "Quantum Computing Inc., an integrated photonics company, provides quantum machines to commercial and government markets in the United States. The company develops thin film lithium niobate chips for optical devices, such as electro-optical modulators, periodically poled devices for frequency conversion, and micro ring resonator cavities markets. It is also developing entropy quantum computer, a full-stack system, allows users to avoid the complexity of software development kits at the circuit level, as well as enables developers to create and execute quantum-ready applications using application programming interfaces. In addition, the company offers reservoir computer, an edge device that used an integrated circuit that can be reprogrammed after manufacturing and optimized for recurrent neural network applications; lidar which allows machines to see through dense fog and provide image fidelity at great distances in environments such as snow, ice, and water; quantum photonic vibrometer, an instrument for remote vibration detection, sensing, and inspection; and quantum networks and quantum authentication products. The company was formerly known as Innovative Beverage Group Holdings, Inc. Quantum Computing, Inc. was founded in 2001 and is based in Hoboken, New Jersey.",
+    "notes": null
+  },
+  "SWIN": {
+    "ticker": "SWIN",
+    "segment": "Bitcoin Miners",
+    "name": "SOLOWIN",
+    "description": "Solowin Holdings, an investment holding company, provides corporate finance, wealth management, virtual assets, and asset management services in Hong Kong. It operates Solomon VA+, a trading platform that allows investors to trade over listed securities and their derivative products listed on the Hong Kong Stock Exchange (HKSE), New York Stock Exchange, Nasdaq, Shanghai Stock Exchange, and Shenzhen Stock Exchange; and provides online account opening and trading services through its front trading and back-office clearing systems. The company also offers Hong Kong initial public offering (IPO) underwriting, public offer application, and margin financing services; international placing subscription; Hong Kong pre-IPO securities trading; US IPO subscription; virtual assets trading, IPO subscription and placement, bond trading, fund subscription, equity custodian and agent, investment immigrant account management, enterprise employee shareholding exercise, professional investment research, and instant quotation services. In addition, it provides investment advisory services to its clients based on their financial needs and risk appetite; and issues and manages various fund products. Further, the company offers professional asset management services to financial and private institutions; tailored financial services to individual investors; investment banking services; virtual asset dealing, virtual assets spot exchange-traded products subscription and redemption, security token offering, and blockchain services; financial and independent financial advisory services for unlisted and listed companies; and securities dealing and advice, financial planning, and offshore private fund investment services. Solowin Holdings was incorporated in 2021 and is based in Tsim Sha Tsui, Hong Kong.",
+    "notes": null
+  }
+}

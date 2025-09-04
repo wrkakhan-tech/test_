@@ -1,0 +1,32 @@
+{
+    "segments": {
+        "Quantum": ["IONQ", "QBTS", "RGTI", "LAES"],
+        "Chip": ["NVDA", "AMD", "AVGO", "ASML", "TSM", "POET", "TER", "SMCI"],
+        "Bitcoin Miners": ["MARA", "HUT", "CIFR", "IREN"],
+        "AI": ["SOUN", "BBAI", "CRNC", "RZLV"],
+        "Finance": ["PYPL", "OPFI", "SOFI","PGY", "TW"],
+        "Tech": ["GOOGL", "MSFT", "META", "DOCU", "RDDT"],
+        "E-commerce/Food": ["CAKE", "SHOP", "ELF", "COST", "NKE"],
+        "Consumer Goods": ["HNST", "WOOF"],
+        "Travel": ["DAL", "UAL", "ABNB"],
+        "Space": ["RKLB", "ASTS"],
+        "Cybersecurity": ["CRWD", "DDOG", "ALLT", "ZS", "NET", "OKTA"],
+        "Energy": ["VST", "OKLO", "CEG", "TLN", "ASPI"],
+        "5G": ["AMT"],
+        "Ad-tech": ["TTD"],
+        "Transport": ["AUR"],
+        "Robotics": ["SERV", "SYM"],
+        "Car E-commerce": ["KMX", "CVNA"],
+        "Shoe/Apparel": ["ONON"],
+        "Health Tech": ["PRVA", "OSCR", "RXRX"],
+        "Cloud Tech": ["ANET"],
+        "Oil and Gas": ["LB"],
+        "Data Centers": ["NBIS", "APLD", "IREN"],
+        "Data Analytics": ["INOD", "PLTR", "VERI"],
+        "Minerals Tech": ["GEOS", "TMC", "ASPI", "USAR"],
+        "Healthcare": ["UNH", "NUVB", "EYEN", "NLSP", "TNXP"],
+        "Food/Restaurants": ["CAVA", "SHAK", "CAKE"]
+    },
+    "last_updated": "2024-03-31",
+    "version": "1.0"
+}
