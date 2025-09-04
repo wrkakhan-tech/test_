@@ -1,0 +1,2470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Signal Analysis</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Add ApexCharts for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        console.log('Head script executing');
+        window.onload = function() {
+            console.log('Window loaded');
+            alert('JavaScript is working!');
+        };
+    </script>
+    <style>
+        /* Dark theme styles */
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .card {
+            background-color: #2d2d2d;
+            border: 1px solid #404040;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        input, select {
+            background-color: #333333;
+            border: 1px solid #404040;
+            color: #e0e0e0;
+        }
+        button {
+            background-color: #4a5568;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #2d3748;
+        }
+        .segment-btn {
+            transition: all 0.3s;
+        }
+        .segment-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .result-box {
+            background-color: #2d2d2d;
+            border: 1px solid #404040;
+        }
+        pre {
+            background-color: #333333;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+        }
+        .success { color: #68d391; }
+        .warning { color: #f6ad55; }
+        .error { color: #fc8181; }
+        .segment-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: #4a5568;
+        }
+        #stockChart {
+            width: 100% !important;
+        }
+        
+        /* Loading animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .pulse-animation {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .loading {
+            background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        
+        .hover\:scale-102:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Error state */
+        /* Performance spectrum styles */
+        .performance-spectrum {
+            background-color: #2d2d2d;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .segment-row {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+            font-size: 0.9rem;
+        }
+        
+        .segment-label {
+            width: 200px;
+            text-align: right;
+            padding-right: 1rem;
+            color: #a0aec0;
+        }
+        
+        .performance-bar {
+            flex-grow: 1;
+            display: flex;
+            height: 24px;
+            gap: 1px;
+        }
+        
+        .stock-item {
+            padding: 0 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .stock-item:hover {
+            filter: brightness(1.2);
+            transform: translateY(-1px);
+        }
+        
+        /* Performance colors */
+        .perf-very-negative { background-color: #991b1b; }
+        .perf-negative { background-color: #dc2626; }
+        .perf-neutral { background-color: #525252; }
+        .perf-positive { background-color: #15803d; }
+        .perf-very-positive { background-color: #16a34a; }
+        
+        .error-state {
+            border-color: #fc8181;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        
+        /* Smooth transitions */
+        .card {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .segment-badge {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .segment-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Loading indicator */
+        .loading-indicator.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">Stock Signal Analysis</h1>
+
+        <!-- Tab Navigation -->
+        <div class="flex space-x-4 mb-6">
+            <button class="tab-btn active px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-200" data-tab="main">
+                Main View
+            </button>
+            <button class="tab-btn px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all duration-200" data-tab="segment-overview">
+                Segment Overview
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="main-tab" class="tab-content">
+            <!-- Advanced Filters -->
+        <div class="mb-6 bg-[#2d2d2d] rounded-lg p-4 shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search Input -->
+                <div class="relative">
+                    <label class="block text-sm font-medium mb-2">Search Stocks</label>
+                    <div class="relative">
+                        <input type="text" 
+                               id="searchInput" 
+                               placeholder="Search by symbol or name..." 
+                               class="w-full px-4 py-2 rounded bg-[#333333] border border-[#404040] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Segment Dropdown -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Segment</label>
+                    <select id="segmentSelect" 
+                            class="w-full px-4 py-2 rounded bg-[#333333] border border-[#404040] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
+                        <option value="all">All Segments</option>
+                        <!-- Segments will be added here -->
+                    </select>
+                </div>
+
+                <!-- Date Range -->
+                <div class="col-span-2 grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Start Date</label>
+                        <input type="date" 
+                               id="startDate" 
+                               class="w-full px-4 py-2 rounded bg-[#333333] border border-[#404040] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">End Date</label>
+                        <input type="date" 
+                               id="endDate" 
+                               class="w-full px-4 py-2 rounded bg-[#333333] border border-[#404040] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
+                    </div>
+                </div>
+
+                <!-- Window Period -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Analysis Window</label>
+                    <select id="windowPeriod" 
+                            class="w-full px-4 py-2 rounded bg-[#333333] border border-[#404040] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
+                        <option value="3">3 Days</option>
+                        <option value="5" selected>5 Days</option>
+                        <option value="10">10 Days</option>
+                        <option value="15">15 Days</option>
+                        <option value="20">20 Days</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div>
+                    <label class="block text-sm font-medium mb-2">Sort By</label>
+                    <select id="sortBy" 
+                            class="w-full px-4 py-2 rounded bg-[#333333] border border-[#404040] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
+                        <option value="symbol">Symbol</option>
+                        <option value="price">Price</option>
+                        <option value="change">% Change</option>
+                        <option value="volume">Volume</option>
+                    </select>
+                </div>
+            </div>
+
+                <!-- Add Stock Button -->
+    <div class="mt-4 flex justify-between items-center">
+        <div class="flex flex-wrap gap-2" id="quickFilters">
+            <button class="quick-filter active px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-sm transition-all duration-200">
+                All
+            </button>
+            <!-- Other quick filters -->
+        </div>
+        <button onclick="showAddStockModal()" 
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors duration-200 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Add Stock</span>
+        </button>
+    </div>
+
+    <!-- Add Stock Modal -->
+    <div id="addStockModal" class="fixed inset-0 bg-black bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-gray-800">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold">Add New Stock</h3>
+                <button onclick="closeAddStockModal()" class="text-gray-400 hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="addStockForm" class="space-y-4" onsubmit="handleAddStock(event)">
+                <!-- Symbol Input -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Stock Symbol</label>
+                    <input type="text" 
+                           id="newStockSymbol" 
+                           class="w-full px-3 py-2 bg-gray-700 rounded focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., AAPL"
+                           pattern="[A-Za-z0-9]+"
+                           maxlength="10"
+                           required>
+                    <div id="symbolValidation" class="mt-1 text-sm hidden"></div>
+                </div>
+                
+                <!-- Segment Selection -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Segment</label>
+                    <select id="newStockSegment" 
+                            class="w-full px-3 py-2 bg-gray-700 rounded focus:ring-2 focus:ring-blue-500"
+                            required>
+                        <option value="">Select Segment...</option>
+                    </select>
+                </div>
+                
+                <!-- Optional Company Name -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Company Name (Optional)</label>
+                    <input type="text" 
+                           id="newStockName" 
+                           class="w-full px-3 py-2 bg-gray-700 rounded focus:ring-2 focus:ring-blue-500"
+                           placeholder="Company Name">
+                </div>
+                
+                <!-- Optional Description -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Description (Optional)</label>
+                    <textarea id="newStockDescription" 
+                            class="w-full px-3 py-2 bg-gray-700 rounded focus:ring-2 focus:ring-blue-500"
+                            rows="3"
+                            placeholder="Brief company description"></textarea>
+                </div>
+                
+                <!-- Status Messages -->
+                <div id="addStockStatus" class="text-sm hidden"></div>
+                
+                <!-- Submit Button -->
+                <div class="flex justify-end gap-2">
+                    <button type="button"
+                            onclick="closeAddStockModal()"
+                            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            id="addStockSubmit"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-2">
+                        <span>Add Stock</span>
+                        <div class="hidden spinner">
+                            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="mt-4 flex flex-wrap gap-2" id="quickFilters">
+        <button class="quick-filter active px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-sm transition-all duration-200">
+            All
+        </button>
+                <button class="quick-filter px-3 py-1 rounded bg-[#4a5568] hover:bg-[#374151] text-sm transition-all duration-200">
+                    Top Gainers
+                </button>
+                <button class="quick-filter px-3 py-1 rounded bg-[#4a5568] hover:bg-[#374151] text-sm transition-all duration-200">
+                    Most Active
+                </button>
+                <button class="quick-filter px-3 py-1 rounded bg-[#4a5568] hover:bg-[#374151] text-sm transition-all duration-200">
+                    Strong Buy
+                </button>
+            </div>
+
+            <!-- Stats Summary -->
+            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-[#404040]">
+                <div class="text-center">
+                    <div class="text-sm opacity-70">Total Stocks</div>
+                    <div class="text-xl font-bold" id="totalStocks">0</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm opacity-70">Gainers</div>
+                    <div class="text-xl font-bold text-green-500" id="gainersCount">0</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm opacity-70">Strong Buy</div>
+                    <div class="text-xl font-bold text-blue-500" id="strongBuyCount">0</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-sm opacity-70">Active Stocks</div>
+                    <div class="text-xl font-bold text-purple-500" id="activeCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="stockGrid">
+            <!-- Stock cards will be added here -->
+        </div>
+        </div>
+
+        <!-- Segment Overview Tab -->
+        <div id="segment-overview-tab" class="tab-content hidden">
+            <div class="performance-spectrum">
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-xl font-semibold">Performance Spectrum</h2>
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm text-gray-400">Time Period:</label>
+                            <select id="performancePeriod" class="bg-gray-700 text-white rounded px-3 py-1 text-sm">
+                                <option value="1">1 Day</option>
+                                <option value="5">5 Days</option>
+                                <option value="7">1 Week</option>
+                                <option value="30">1 Month</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400">Performance breakdown by market segments</p>
+                </div>
+                
+                <!-- Technology Segments -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-gray-300">Technology</h3>
+                    <div class="space-y-2">
+                        <!-- Quantum -->
+                        <div class="segment-row" data-segment="Quantum">
+                            <div class="segment-label">Quantum</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Chip -->
+                        <div class="segment-row" data-segment="Chip">
+                            <div class="segment-label">Chip</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- AI -->
+                        <div class="segment-row" data-segment="AI">
+                            <div class="segment-label">AI</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Tech -->
+                        <div class="segment-row" data-segment="Tech">
+                            <div class="segment-label">Tech</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Cybersecurity -->
+                        <div class="segment-row" data-segment="Cybersecurity">
+                            <div class="segment-label">Cybersecurity</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Cloud Tech -->
+                        <div class="segment-row" data-segment="Cloud Tech">
+                            <div class="segment-label">Cloud Tech</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Data Centers -->
+                        <div class="segment-row" data-segment="Data Centers">
+                            <div class="segment-label">Data Centers</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Data Analytics -->
+                        <div class="segment-row" data-segment="Data Analytics">
+                            <div class="segment-label">Data Analytics</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Add more segments as needed -->
+                    </div>
+                </div>
+
+                <!-- Crypto & Finance Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-gray-300">Crypto & Finance</h3>
+                    <div class="space-y-2">
+                        <!-- Bitcoin Miners -->
+                        <div class="segment-row" data-segment="Bitcoin Miners">
+                            <div class="segment-label">Bitcoin Miners</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Finance -->
+                        <div class="segment-row" data-segment="Finance">
+                            <div class="segment-label">Finance</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- E-commerce & Consumer Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-gray-300">E-commerce & Consumer</h3>
+                    <div class="space-y-2">
+                        <!-- E-commerce/Food -->
+                        <div class="segment-row" data-segment="E-commerce/Food">
+                            <div class="segment-label">E-commerce/Food</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Consumer Goods -->
+                        <div class="segment-row" data-segment="Consumer Goods">
+                            <div class="segment-label">Consumer Goods</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Car E-commerce -->
+                        <div class="segment-row" data-segment="Car E-commerce">
+                            <div class="segment-label">Car E-commerce</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Food/Restaurants -->
+                        <div class="segment-row" data-segment="Food/Restaurants">
+                            <div class="segment-label">Food/Restaurants</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technology Segments -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-gray-300">Technology</h3>
+                    <div class="space-y-2">
+                        <!-- Quantum -->
+                        <div class="segment-row" data-segment="Quantum">
+                            <div class="segment-label">Quantum</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Chip -->
+                        <div class="segment-row" data-segment="Chip">
+                            <div class="segment-label">Chip</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- AI -->
+                        <div class="segment-row" data-segment="AI">
+                            <div class="segment-label">AI</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Tech -->
+                        <div class="segment-row" data-segment="Tech">
+                            <div class="segment-label">Tech</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Cybersecurity -->
+                        <div class="segment-row" data-segment="Cybersecurity">
+                            <div class="segment-label">Cybersecurity</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Cloud Tech -->
+                        <div class="segment-row" data-segment="Cloud Tech">
+                            <div class="segment-label">Cloud Tech</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Data Centers -->
+                        <div class="segment-row" data-segment="Data Centers">
+                            <div class="segment-label">Data Centers</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Data Analytics -->
+                        <div class="segment-row" data-segment="Data Analytics">
+                            <div class="segment-label">Data Analytics</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Segments Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-gray-300">Additional Segments</h3>
+                    <div class="space-y-2">
+                        <!-- Shoe/Apparel -->
+                        <div class="segment-row" data-segment="Shoe/Apparel">
+                            <div class="segment-label">Shoe/Apparel</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Transport -->
+                        <div class="segment-row" data-segment="Transport">
+                            <div class="segment-label">Transport</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Travel -->
+                        <div class="segment-row" data-segment="Travel">
+                            <div class="segment-label">Travel</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Space -->
+                        <div class="segment-row" data-segment="Space">
+                            <div class="segment-label">Space</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- Robotics -->
+                        <div class="segment-row" data-segment="Robotics">
+                            <div class="segment-label">Robotics</div>
+                            <div class="performance-bar">
+                                <!-- Stocks will be added dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Modal -->
+    <div id="analysisModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 overflow-y-auto">
+        <div class="min-h-screen px-4 text-center">
+            <!-- Modal panel -->
+            <div class="inline-block w-full max-w-7xl my-8 text-left align-middle">
+                <div class="bg-[#1a1a1a] rounded-lg shadow-xl p-6">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 id="analysisTitle" class="text-2xl font-bold"></h2>
+                        <button onclick="closeAnalysisModal()" class="text-gray-400 hover:text-white">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div id="analysisContent">
+                        <div id="stockChart" class="mb-8" style="height: 800px;"></div>
+                        <div id="metricsOutput" class="mb-4"></div>
+                        <div id="debugOutput" class="font-mono text-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <script>
+        console.log('Script tag loaded and executing');
+        // Stock Segments Enum
+        const StockSegment = {
+            QUANTUM: "Quantum",
+            CHIP: "Chip",
+            BITCOIN_MINERS: "Bitcoin Miners",
+            AI: "AI",
+            FINANCE: "Finance",
+            TECH: "Tech",
+            ECOMMERCE_FOOD: "E-commerce/Food",
+            CONSUMER_GOODS: "Consumer Goods",
+            TRAVEL: "Travel",
+            SPACE: "Space",
+            CYBERSECURITY: "Cybersecurity",
+            ENERGY: "Energy",
+            FIVE_G: "5G",
+            ADTECH: "Ad-tech",
+            TRANSPORT: "Transport",
+            ROBOTICS: "Robotics",
+            CAR_ECOMMERCE: "Car E-commerce",
+            SHOE_APPAREL: "Shoe/Apparel",
+            HEALTH_TECH: "Health Tech",
+            CLOUD_TECH: "Cloud Tech",
+            OIL_AND_GAS: "Oil and Gas",
+            DATA_CENTERS: "Data Centers",
+            DATA_ANALYTICS: "Data Analytics",
+            MINERALS_TECH: "Minerals Tech",
+            HEALTHCARE: "Healthcare",
+            FOOD_RESTAURANTS: "Food/Restaurants"
+        };
+
+        // Initialize empty stockData
+        const stockData = {};
+        
+        // Function to load stock configuration and registry
+        async function loadStockData() {
+            try {
+                // Show loading state
+                const grid = document.getElementById('stockGrid');
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="col-span-full text-center p-4">
+                            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                            <p class="mt-2 text-gray-300">Loading stock data...</p>
+                        </div>
+                    `;
+                }
+
+                // Load configuration first with retries
+                console.log('Loading stock configuration...');
+                let configResponse;
+                let config;
+                let retries = 3;
+                
+                while (retries > 0) {
+                    try {
+                        configResponse = await fetch('/api/stocks/config');
+                        console.log('Config response status:', configResponse.status);
+                        
+                        if (configResponse.status === 503) {
+                            console.log('Service initializing, waiting 2 seconds...');
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            retries--;
+                            continue;
+                        }
+                        
+                        if (!configResponse.ok) {
+                            const errorText = await configResponse.text();
+                            console.error('Config response error:', errorText);
+                            throw new Error(`Failed to load stock configuration: ${configResponse.status} ${configResponse.statusText}`);
+                        }
+                        
+                        config = await configResponse.json();
+                        console.log('Loaded stock config version:', config.version);
+                        break;
+                        
+                    } catch (fetchError) {
+                        console.error('Failed to fetch config:', fetchError);
+                        if (retries === 1) throw new Error(`Network error loading configuration: ${fetchError.message}`);
+                        console.log(`Retrying config load... (${retries - 1} attempts left)`);
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        retries--;
+                    }
+                }
+                
+                // Initialize stockData with config segments
+                Object.assign(stockData, config.segments);
+                
+                // Then load registry with retries
+                console.log('Loading stock registry...');
+                let registryResponse;
+                let registryData;
+                retries = 3;
+                
+                while (retries > 0) {
+                    try {
+                        registryResponse = await fetch('/api/stocks/registry');
+                        console.log('Registry response status:', registryResponse.status);
+                        
+                        if (registryResponse.status === 503) {
+                            console.log('Service initializing, waiting 2 seconds...');
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            retries--;
+                            continue;
+                        }
+                        
+                        if (!registryResponse.ok) {
+                            const errorText = await registryResponse.text();
+                            console.error('Registry response error:', errorText);
+                            throw new Error(`Failed to load stock registry: ${registryResponse.status} ${registryResponse.statusText}`);
+                        }
+                        
+                        registryData = await registryResponse.json();
+                        console.log('Registry data loaded successfully');
+                        break;
+                        
+                    } catch (fetchError) {
+                        console.error('Failed to fetch registry:', fetchError);
+                        if (retries === 1) throw new Error(`Network error loading registry: ${fetchError.message}`);
+                        console.log(`Retrying registry load... (${retries - 1} attempts left)`);
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        retries--;
+                    }
+                }
+                
+                // Add registry stocks to stockData
+                registryData.forEach(stock => {
+                    if (!stockData[stock.segment]) {
+                        stockData[stock.segment] = [];
+                    }
+                    if (!stockData[stock.segment].includes(stock.ticker)) {
+                        stockData[stock.segment].push(stock.ticker);
+                    }
+                });
+                
+                console.log('Loaded stocks from registry:', stockData);
+                
+                // Initialize UI with loaded data
+                console.log('Initializing UI components...');
+                initializeSegmentDropdown();
+                await filterStocks();
+            } catch (error) {
+                console.error('Error loading stock data:', error);
+                // Show error in UI
+                const grid = document.getElementById('stockGrid');
+                grid.innerHTML = `
+                    <div class="col-span-full p-4 bg-red-900 rounded-lg text-white">
+                        <h3 class="font-bold mb-2">Error Loading Stocks</h3>
+                        <p>${error.message}</p>
+                        <button onclick="loadStockData()" class="mt-2 px-4 py-2 bg-red-700 hover:bg-red-800 rounded">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        };
+
+        // Function to create a stock card
+        function createStockCard(symbol, segment) {
+            const card = document.createElement('div');
+            card.className = 'card p-4 rounded-lg shadow-lg cursor-pointer transform transition-all duration-200 hover:scale-102';
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center">
+                        <h3 class="text-lg font-bold">${symbol}</h3>
+                        <div class="loading-indicator ml-2 opacity-0 transition-opacity duration-200">
+                            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <span class="segment-badge bg-opacity-75 backdrop-blur-sm">${segment}</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="price-info" data-symbol="${symbol}">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm opacity-70">Price:</span>
+                            <span class="text-sm price-value loading pulse-animation">Loading...</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm opacity-70">Change:</span>
+                            <span class="text-sm change-value loading pulse-animation">Loading...</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-sm opacity-70">Volume:</span>
+                            <span class="text-sm volume-value loading pulse-animation">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 flex justify-between items-center gap-2">
+                    <button onclick="analyzeStock('${symbol}')" 
+                            class="text-sm px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 transition-colors duration-200 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Analyze
+                    </button>
+                    <button onclick="refreshStock('${symbol}')" 
+                            class="text-sm px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200 flex items-center refresh-button"
+                            data-symbol="${symbol}">
+                        <svg class="w-4 h-4 mr-1 refresh-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span class="refresh-text">Refresh</span>
+                    </button>
+                    <button onclick="addToWatchlist('${symbol}')" 
+                            class="text-sm px-3 py-1 rounded bg-green-600 hover:bg-green-700 transition-colors duration-200 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Watch
+                    </button>
+                </div>
+                <div class="error-message hidden mt-2 text-sm text-red-500"></div>
+            `;
+            return card;
+        }
+
+        // Function to create segment filters
+        function createSegmentFilters() {
+            const container = document.getElementById('segmentFilters');
+            container.innerHTML = '<button class="segment-btn active px-3 py-1 rounded" data-segment="all">All</button>';
+            
+            Object.keys(stockData).forEach(segment => {
+                const btn = document.createElement('button');
+                btn.className = 'segment-btn px-3 py-1 rounded';
+                btn.textContent = segment;
+                btn.dataset.segment = segment;
+                container.appendChild(btn);
+            });
+        }
+
+        // Enhanced cache with expiration
+        class Cache {
+            constructor(expirationMinutes = 5) {
+                this.cache = new Map();
+                this.expirationMinutes = expirationMinutes;
+            }
+
+            set(key, value) {
+                this.cache.set(key, {
+                    value,
+                    timestamp: Date.now(),
+                    expires: Date.now() + (this.expirationMinutes * 60 * 1000)
+                });
+            }
+
+            get(key) {
+                const item = this.cache.get(key);
+                if (!item) return null;
+                if (Date.now() > item.expires) {
+                    this.cache.delete(key);
+                    return null;
+                }
+                return item.value;
+            }
+
+            has(key) {
+                return this.get(key) !== null;
+            }
+
+            clear() {
+                this.cache.clear();
+            }
+        }
+
+        // Initialize caches with different expiration times
+        const stockDataCache = new Cache(5);  // 5 minutes cache for card data
+        const analysisCache = new Cache(30);  // 30 minutes cache for analysis
+
+        // Batch size for API calls
+        const BATCH_SIZE = 10;
+
+        // Function to chunk array into batches
+        function chunk(array, size) {
+            const chunks = [];
+            for (let i = 0; i < array.length; i += size) {
+                chunks.push(array.slice(i, i + size));
+            }
+            return chunks;
+        }
+
+        // Function to fetch stock data with optimized loading
+        async function fetchStocksWithDelay(symbols) {
+            const uncachedSymbols = symbols.filter(symbol => !stockDataCache.has(symbol));
+            if (uncachedSymbols.length === 0) {
+                // If all data is cached, just update the UI
+                symbols.forEach(symbol => {
+                    const data = stockDataCache.get(symbol);
+                    if (data) updateCardWithData(symbol, data);
+                });
+                return;
+            }
+
+            // Process 3 symbols at a time with minimal delay
+            const processSymbols = async (startIndex) => {
+                const batch = uncachedSymbols.slice(startIndex, startIndex + 3);
+                if (batch.length === 0) return;
+
+                await Promise.all(batch.map(async (symbol) => {
+                    try {
+                        const data = await fetchStockData(symbol);
+                        if (data) {
+                            stockDataCache.set(symbol, data);
+                            updateCardWithData(symbol, data);
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching ${symbol}:`, error);
+                        showErrorOnCard(symbol);
+                    }
+                }));
+
+                // Small delay before next batch
+                await new Promise(resolve => setTimeout(resolve, 50));
+                await processSymbols(startIndex + 3);
+            };
+
+            // Start processing symbols
+            await processSymbols(0);
+        }
+
+        // Function to pre-fetch analysis data
+        async function prefetchAnalysis(symbol) {
+            if (!analysisCache.has(symbol)) {
+                try {
+                    const response = await fetch('/api/stocks/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ticker: symbol,
+                            window: 5,
+                            start_date: getDefaultStartDate(),
+                            end_date: getDefaultEndDate()
+                        })
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        analysisCache.set(symbol, data);
+                    }
+                } catch (error) {
+                    console.error(`Error prefetching analysis for ${symbol}:`, error);
+                }
+            }
+        }
+
+        // Function to filter stocks
+        async function filterStocks(segment = 'all', searchTerm = '') {
+            const grid = document.getElementById('stockGrid');
+            grid.innerHTML = '<div class="col-span-full text-center p-4">Loading stocks...</div>';
+
+            let symbolsToShow = [];
+            if (segment === 'all') {
+                Object.entries(stockData).forEach(([seg, stocks]) => {
+                    stocks.forEach(symbol => {
+                        if (symbol.toLowerCase().includes(searchTerm.toLowerCase())) {
+                            symbolsToShow.push({ symbol, segment: seg });
+                        }
+                    });
+                });
+            } else {
+                stockData[segment].forEach(symbol => {
+                    if (symbol.toLowerCase().includes(searchTerm.toLowerCase())) {
+                        symbolsToShow.push({ symbol, segment });
+                    }
+                });
+            }
+
+            // Start prefetching data
+            const symbols = symbolsToShow.map(s => s.symbol);
+            prefetchStockData(symbols);
+            
+            // Prefetch analysis for first few stocks
+            symbols.slice(0, 3).forEach(symbol => prefetchAnalysis(symbol));
+
+            // Clear grid and add cards
+            grid.innerHTML = '';
+            symbolsToShow.forEach(({ symbol, segment }) => {
+                grid.appendChild(createStockCard(symbol, segment));
+            });
+
+            // Update cards with cached data
+            symbolsToShow.forEach(({ symbol }) => {
+                const cachedData = stockDataCache.get(symbol);
+                if (cachedData) {
+                    updateCardWithData(symbol, cachedData);
+                }
+            });
+        }
+
+        // Function to create chart
+        function createChart(chartData, symbol = '') {
+            const traces = [
+                // Price
+                {
+                    x: chartData.dates,
+                    y: chartData.prices,
+                    type: 'scatter',
+                    name: 'Close Price',
+                    line: { color: '#3b82f6' }  // blue
+                },
+                // Moving Averages
+                {
+                    x: chartData.dates,
+                    y: chartData.ma20,
+                    type: 'scatter',
+                    name: 'MA 20',
+                    line: { color: '#f59e0b', dash: 'dash' }  // orange
+                },
+                {
+                    x: chartData.dates,
+                    y: chartData.ma50,
+                    type: 'scatter',
+                    name: 'MA 50',
+                    line: { color: '#8b5cf6', dash: 'dot' }  // purple
+                },
+                {
+                    x: chartData.dates,
+                    y: chartData.ma100,
+                    type: 'scatter',
+                    name: 'MA 100',
+                    line: { color: '#6b7280', dash: 'dashdot' }  // gray
+                },
+                // Swing Highs
+                {
+                    x: chartData.dates,
+                    y: chartData.swing_highs,
+                    type: 'scatter',
+                    mode: 'markers',
+                    name: 'Swing High',
+                    marker: {
+                        color: '#ef4444',  // red
+                        symbol: 'triangle-up',
+                        size: 10
+                    }
+                },
+                // Swing Lows
+                {
+                    x: chartData.dates,
+                    y: chartData.swing_lows,
+                    type: 'scatter',
+                    mode: 'markers',
+                    name: 'Swing Low',
+                    marker: {
+                        color: '#22c55e',  // green
+                        symbol: 'triangle-down',
+                        size: 10
+                    }
+                },
+                // Strong Buy Signals
+                {
+                    x: chartData.dates.filter((_, i) => chartData.strong_buy_signals[i]),
+                    y: chartData.prices.filter((_, i) => chartData.strong_buy_signals[i]),
+                    type: 'scatter',
+                    mode: 'markers',
+                    name: 'Strong Buy Signal',
+                    marker: {
+                        color: '#84cc16',  // lime
+                        symbol: 'star',
+                        size: 15
+                    }
+                },
+                // Volume Bars
+                {
+                    x: chartData.dates,
+                    y: chartData.volumes,
+                    type: 'bar',
+                    name: 'Volume',
+                    yaxis: 'y2',
+                    marker: {
+                        color: chartData.volume_colors.map(c => c === 'green' ? '#22c55e' : '#ef4444'),
+                        opacity: 0.5
+                    }
+                },
+                // Volume MA
+                {
+                    x: chartData.dates,
+                    y: chartData.volume_ma20,
+                    type: 'scatter',
+                    name: 'Volume MA20',
+                    yaxis: 'y2',
+                    line: { color: '#1f2937', width: 1, dash: 'dot' }
+                }
+            ];
+
+                            const layout = {
+                    height: 800,
+                    plot_bgcolor: '#2d2d2d',
+                    paper_bgcolor: '#2d2d2d',
+                    font: { 
+                        color: '#e0e0e0',
+                        size: 14
+                    },
+                    xaxis: {
+                        gridcolor: '#404040',
+                        zerolinecolor: '#404040',
+                        tickfont: { size: 12 },
+                        title: {
+                            text: 'Date',
+                            font: { size: 14 }
+                        },
+                        rangeslider: {
+                            visible: true,
+                            thickness: 0.05,
+                            bgcolor: '#1a1a1a',
+                            bordercolor: '#404040'
+                        },
+                        rangeselector: {
+                            buttons: [
+                                { count: 7, label: '1w', step: 'day', stepmode: 'backward' },
+                                { count: 1, label: '1m', step: 'month', stepmode: 'backward' },
+                                { count: 3, label: '3m', step: 'month', stepmode: 'backward' },
+                                { count: 6, label: '6m', step: 'month', stepmode: 'backward' },
+                                { count: 1, label: '1y', step: 'year', stepmode: 'backward' },
+                                { step: 'all', label: 'All' }
+                            ],
+                            bgcolor: '#2d2d2d',
+                            activecolor: '#3b82f6',
+                            font: { color: '#e0e0e0' }
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Price',
+                            font: { size: 14 }
+                        },
+                        side: 'left',
+                        gridcolor: '#404040',
+                        zerolinecolor: '#404040',
+                        tickfont: { size: 12 },
+                        tickformat: '.2f',
+                        fixedrange: false,
+                        automargin: true,
+                        showspikes: true,
+                        spikecolor: '#606060',
+                        spikethickness: 1
+                    },
+                    yaxis2: {
+                        title: {
+                            text: 'Volume',
+                            font: { size: 14 }
+                        },
+                        overlaying: 'y',
+                        side: 'right',
+                        showgrid: false,
+                        tickfont: { size: 12 },
+                        fixedrange: false,
+                        automargin: true,
+                        showspikes: true,
+                        spikecolor: '#606060',
+                        spikethickness: 1
+                    },
+                    showlegend: true,
+                    legend: {
+                        yanchor: 'top',
+                        y: 1,
+                        xanchor: 'left',
+                        x: 0,
+                        bgcolor: 'rgba(45, 45, 45, 0.9)',
+                        font: { size: 12 },
+                        bordercolor: '#404040',
+                        borderwidth: 1
+                    },
+                    margin: { 
+                        l: 60,
+                        r: 60,
+                        t: 50,  // Increased for range selector
+                        b: 70,
+                        pad: 0
+                    },
+                    title: symbol ? {
+                        text: `${symbol} Analysis`,
+                        font: {
+                            size: 24,
+                            color: '#e0e0e0'
+                        },
+                        x: 0.5,
+                        xanchor: 'center',
+                        y: 0.95
+                    } : undefined,
+                    autosize: true,
+                    hovermode: 'x unified',
+                    dragmode: 'zoom',
+                    modebar: {
+                        bgcolor: 'rgba(45, 45, 45, 0.9)',
+                        color: '#e0e0e0',
+                        activecolor: '#3b82f6',
+                        add: ['drawline', 'drawopenpath', 'drawclosedpath', 'drawcircle', 'eraseshape']
+                    },
+                    annotations: chartData.strong_buy_signals.map((isBuy, i) => {
+                        if (!isBuy) return null;
+                        return {
+                            x: chartData.dates[i],
+                            y: chartData.prices[i],
+                            text: 'Buy',
+                            showarrow: true,
+                            arrowhead: 2,
+                            arrowsize: 1,
+                            arrowwidth: 2,
+                            arrowcolor: '#84cc16',
+                            ax: 0,
+                            ay: -40,
+                            font: { color: '#84cc16' }
+                        };
+                    }).filter(Boolean)
+            };
+
+            Plotly.newPlot('stockChart', traces, layout);
+        }
+
+        // Function to display metrics
+        function displayMetrics(metrics) {
+            let metricsHtml = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">';
+            metricsHtml += `<div><strong>Higher Lows:</strong> ${metrics.higher_lows_count}</div>`;
+            metricsHtml += `<div><strong>Higher Highs:</strong> ${metrics.higher_highs_count}</div>`;
+            metricsHtml += `<div><strong>Avg Days Between Swings:</strong> ${metrics.avg_days_between_swings?.toFixed(2) || 'N/A'}</div>`;
+            metricsHtml += `<div><strong>Score:</strong> ${metrics.score_percentage.toFixed(2)}%</div>`;
+            metricsHtml += '</div>';
+            
+            // Display conditions
+            metricsHtml += '<div class="mb-4"><strong>Conditions Met:</strong></div>';
+            metricsHtml += '<div class="grid grid-cols-1 md:grid-cols-2 gap-2">';
+            for (const [condition, met] of Object.entries(metrics.conditions_met)) {
+                const icon = met ? '✅' : '❌';
+                const className = met ? 'success' : 'error';
+                metricsHtml += `<div class="${className}">${icon} ${condition.replace(/_/g, ' ').toUpperCase()}</div>`;
+            }
+            metricsHtml += '</div>';
+            
+            document.getElementById('metricsOutput').innerHTML = metricsHtml;
+        }
+
+        // Loading and UI control functions
+        function showSpinner(id) {
+            const spinner = document.createElement('div');
+            spinner.id = id;
+            spinner.className = 'loading-spinner flex items-center justify-center space-x-2';
+            spinner.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-blue-500" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-sm text-blue-500">Processing...</span>
+            `;
+            return spinner;
+        }
+
+        function hideSpinner(id) {
+            const spinner = document.getElementById(id);
+            if (spinner) spinner.remove();
+        }
+
+        function disableControls() {
+            document.querySelectorAll('button, select, input').forEach(el => {
+                if (!el.hasAttribute('data-original-disabled')) {
+                    el.setAttribute('data-original-disabled', el.disabled);
+                    el.disabled = true;
+                }
+            });
+        }
+
+        function enableControls() {
+            document.querySelectorAll('[data-original-disabled]').forEach(el => {
+                el.disabled = el.getAttribute('data-original-disabled') === 'true';
+                el.removeAttribute('data-original-disabled');
+            });
+        }
+
+        // Function to show analysis modal
+        function showAnalysisModal(symbol) {
+            const modal = document.getElementById('analysisModal');
+            const title = document.getElementById('analysisTitle');
+            const content = document.getElementById('analysisContent');
+            
+            modal.classList.remove('hidden');
+            title.textContent = `Analysis: ${symbol}`;
+            
+            // Create loading state with spinner
+            const loadingState = document.createElement('div');
+            loadingState.className = 'flex flex-col items-center justify-center p-8 space-y-4';
+            loadingState.appendChild(showSpinner(`spinner-${symbol}`));
+            loadingState.innerHTML += `
+                <div class="text-lg">Analyzing ${symbol}...</div>
+                <div class="text-sm text-gray-400">This may take a few seconds</div>
+            `;
+            
+            content.innerHTML = '';
+            content.appendChild(loadingState);
+        }
+
+        // Function to close analysis modal
+        function closeAnalysisModal() {
+            document.getElementById('analysisModal').classList.add('hidden');
+        }
+
+        // Function to retry analysis
+        async function retryAnalysis(symbol) {
+            // Clear cache for this symbol
+            analysisCache.cache.delete(symbol);
+            // Retry analysis
+            await analyzeStock(symbol);
+        }
+
+        // Function to show error in modal
+        function showErrorModal(message, symbol) {
+            const content = document.getElementById('analysisContent');
+            content.innerHTML = `
+                <div class="bg-red-900 text-white p-4 rounded-lg mb-4">
+                    <div class="font-bold mb-2">Error analyzing ${symbol}</div>
+                    <div>${message}</div>
+                </div>
+                <button onclick="retryAnalysis('${symbol}')" 
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors duration-200">
+                    Retry Analysis
+                </button>
+            `;
+        }
+
+        // Function to hide loading state
+        function hideAnalysisLoading() {
+            const content = document.getElementById('analysisContent');
+            if (content.querySelector('.loading-indicator')) {
+                content.querySelector('.loading-indicator').remove();
+            }
+        }
+
+        // Function to display analysis results
+        function displayAnalysisResults(symbol, data) {
+            console.log('Displaying analysis results for', symbol);
+            
+            const content = document.getElementById('analysisContent');
+            
+            // Create container for results
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Chart container -->
+                    <div id="stockChart" class="mb-8 bg-[#2d2d2d] rounded-lg p-4" style="height: 800px;"></div>
+                    
+                    <!-- Metrics panel -->
+                    <div id="metricsOutput" class="bg-[#2d2d2d] rounded-lg p-4 mb-4"></div>
+                    
+                    <!-- Debug panel -->
+                    <div class="bg-[#2d2d2d] rounded-lg p-4">
+                        <div class="text-sm font-semibold mb-2">Debug Information</div>
+                        <div id="debugOutput" class="font-mono text-sm"></div>
+                    </div>
+                </div>
+            `;
+
+            try {
+                // Create chart with title
+                createChart(data.chart_data, symbol);
+                
+                // Display metrics
+                displayMetrics(data.metrics);
+                
+                // Display debug messages
+                document.getElementById('debugOutput').innerHTML = 
+                    '<pre class="whitespace-pre-wrap">' + data.debug_messages.join('\n') + '</pre>';
+                    
+                console.log('Analysis display completed for', symbol);
+            } catch (error) {
+                console.error('Error displaying analysis:', error);
+                showErrorModal('Error displaying analysis results. Please try again.', symbol);
+            }
+        }
+
+        // Function to analyze a stock with retry logic
+        async function analyzeStock(symbol, retryCount = 1) {
+            const spinnerId = `spinner-${symbol}`;
+            const controller = new AbortController();
+            const timeoutMs = 15000; // 15s timeout
+
+            try {
+                // Show modal and disable controls
+                showAnalysisModal(symbol);
+                disableControls();
+
+                // Use cached data if available
+                if (analysisCache.has(symbol)) {
+                    console.log(`Using cached data for ${symbol}`);
+                    const cached = analysisCache.get(symbol);
+                    displayAnalysisResults(symbol, cached);
+                    return;
+                }
+
+                // Collect and validate input values
+                const window = parseInt(document.getElementById('windowPeriod').value);
+                const { startDate, endDate } = validateDateRange(
+                    document.getElementById('startDate').value,
+                    document.getElementById('endDate').value
+                );
+
+                if (!window || !startDate || !endDate) {
+                    throw new Error("Please fill all required fields (window, start date, end date).");
+                }
+
+                console.log(`Fetching analysis for ${symbol}...`);
+
+                // Setup timeout
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+                const payload = {
+                    ticker: symbol,
+                    window,
+                    start_date: startDate,
+                    end_date: endDate
+                };
+
+                const response = await fetch('/api/stocks/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
+                    body: JSON.stringify(payload)
+                });
+
+                clearTimeout(timeoutId);
+
+                // Handle HTTP error codes
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('API Error:', errorData);
+                    
+                    // If it's a server error and we have retries left, try again
+                    if (response.status >= 500 && retryCount > 0) {
+                        console.log(`Retrying analysis for ${symbol} (${retryCount} attempts left)`);
+                        return analyzeStock(symbol, retryCount - 1);
+                    }
+                    
+                    throw new Error(
+                        errorData.detail?.message || 
+                        `Analysis failed: ${response.status} ${response.statusText}`
+                    );
+                }
+
+                console.log(`Received analysis data for ${symbol}`);
+                const data = await response.json();
+                
+                // Validate data structure
+                if (!data.chart_data || !data.metrics) {
+                    throw new Error('Invalid response format from server');
+                }
+                
+                // Cache the analysis data
+                analysisCache.set(symbol, data);
+                
+                // Display results
+                displayAnalysisResults(symbol, data);
+                    
+            } catch (error) {
+                console.error(`Error analyzing ${symbol}:`, error);
+                
+                if (error.name === 'AbortError') {
+                    showErrorModal(`Analysis timed out after ${timeoutMs / 1000}s. Please try again.`, symbol);
+                } else if (retryCount > 0 && !error.message.includes('Please fill all required fields')) {
+                    console.log(`Retrying analysis for ${symbol} (${retryCount} attempts left)`);
+                    return analyzeStock(symbol, retryCount - 1);
+                } else {
+                    showErrorModal(error.message || 'Unexpected error occurred during analysis.', symbol);
+                }
+            } finally {
+                hideSpinner(spinnerId);
+                enableControls();
+            }
+        }
+
+        // Date formatting and validation functions
+        function formatDateForAPI(date) {
+            return date.toISOString().split('T')[0];  // YYYY-MM-DD
+        }
+
+        function getDefaultStartDate() {
+            const date = new Date();
+            date.setMonth(date.getMonth() - 1); // Default to 1 month of data
+            return formatDateForAPI(date);
+        }
+
+        function getDefaultEndDate() {
+            return formatDateForAPI(new Date());
+        }
+
+        function validateDateRange(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const hardStartDate = new Date('2023-06-01');
+            
+            // Ensure start date is not before hard start date
+            if (start < hardStartDate) {
+                start = hardStartDate;
+            }
+            
+            // Ensure end date is not in the future
+            const today = new Date();
+            if (end > today) {
+                end = today;
+            }
+            
+            // Ensure start is not after end
+            if (start > end) {
+                start = new Date(end);
+                start.setMonth(start.getMonth() - 1);
+            }
+            
+            return {
+                startDate: formatDateForAPI(start),
+                endDate: formatDateForAPI(end)
+            };
+        }
+
+        // Initialize date inputs
+        function initializeDateInputs() {
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            
+            // Set min/max constraints
+            const today = formatDateForAPI(new Date());
+            const hardStartDate = '2023-06-01';
+            
+            startDate.min = hardStartDate;
+            startDate.max = today;
+            endDate.min = hardStartDate;
+            endDate.max = today;
+            
+            // Set default values
+            const defaultDates = validateDateRange(getDefaultStartDate(), getDefaultEndDate());
+            startDate.value = defaultDates.startDate;
+            endDate.value = defaultDates.endDate;
+            
+            // Add event listeners
+            startDate.addEventListener('change', (e) => {
+                const validDates = validateDateRange(e.target.value, endDate.value);
+                startDate.value = validDates.startDate;
+                endDate.value = validDates.endDate;
+                analysisCache.clear();
+            });
+            
+            endDate.addEventListener('change', (e) => {
+                const validDates = validateDateRange(startDate.value, e.target.value);
+                startDate.value = validDates.startDate;
+                endDate.value = validDates.endDate;
+                analysisCache.clear();
+            });
+        }
+
+        // Function to show error on card
+        function showCardError(symbol, message) {
+            const card = document.querySelector(`.card[data-symbol="${symbol}"]`);
+            if (card) {
+                const errorMsg = card.querySelector('.error-message');
+                if (errorMsg) {
+                    errorMsg.textContent = `Error: ${message}`;
+                    errorMsg.classList.remove('hidden');
+                }
+                // Add error state to card
+                card.classList.add('error-state');
+            }
+        }
+
+        // Function to fetch stock data with enhanced error handling and timeout
+        async function fetchStockData(symbol, retryCount = 0) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+            const MAX_RETRIES = 2;
+
+            try {
+                console.log(`Fetching data for ${symbol}... (attempt ${retryCount + 1})`);
+                const response = await fetch(`/api/stocks/price/${symbol}`, {
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(
+                        errorData.detail?.message || 
+                        `Failed to fetch stock data: ${response.status} ${response.statusText}`
+                    );
+                }
+                
+                const data = await response.json();
+                
+                // Validate data structure
+                if (typeof data.price !== 'number' || typeof data.change !== 'number') {
+                    throw new Error('Invalid price data received');
+                }
+                
+                console.log(`Data received for ${symbol}:`, data);
+                return data;
+                
+            } catch (error) {
+                console.error(`Error fetching data for ${symbol}:`, error);
+                
+                // Retry on timeout if we haven't exceeded max retries
+                if (error.name === 'AbortError' && retryCount < MAX_RETRIES) {
+                    console.log(`Retrying ${symbol} after timeout (attempt ${retryCount + 1})`);
+                    await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1))); // Exponential backoff
+                    return await fetchStockData(symbol, retryCount + 1);
+                }
+                
+                const errorMessage = error.name === 'AbortError' 
+                    ? `Request timed out after ${retryCount + 1} attempts` 
+                    : error.message;
+                const priceInfo = document.querySelector(`.price-info[data-symbol="${symbol}"]`);
+                if (priceInfo) {
+                    const elements = priceInfo.querySelectorAll('.loading');
+                    elements.forEach(el => {
+                        el.textContent = errorMessage;
+                        el.classList.add('text-red-500');
+                    });
+                    
+                    // Show detailed error in console
+                    console.log(`Data fetch failed for ${symbol}:`, {
+                        error: errorMessage,
+                        attempts: retryCount + 1,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                return null;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        // Function to refresh a single stock
+        async function refreshStock(symbol) {
+            const button = document.querySelector(`.refresh-button[data-symbol="${symbol}"]`);
+            const icon = button.querySelector('.refresh-icon');
+            const text = button.querySelector('.refresh-text');
+            const card = button.closest('.card');
+            const errorMsg = card.querySelector('.error-message');
+            
+            try {
+                // Disable button and show loading state
+                button.disabled = true;
+                icon.classList.add('animate-spin');
+                text.textContent = 'Refreshing...';
+                errorMsg.classList.add('hidden');
+                
+                // Call refresh endpoint
+                console.log(`Refreshing data for ${symbol}`);
+                const response = await fetch(`/api/stocks/refresh/${symbol}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    let errorMessage = 'Failed to refresh data';
+                    if (error.detail) {
+                        // Handle both string and object error details
+                        errorMessage = typeof error.detail === 'object' 
+                            ? (error.detail.message || error.detail.error || errorMessage)
+                            : error.detail;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const result = await response.json();
+                
+                // Clear and update caches
+                stockDataCache.cache.delete(symbol);
+                analysisCache.cache.delete(symbol);
+                
+                // Update price data
+                if (result.price_data) {
+                    stockDataCache.set(symbol, result.price_data);
+                    await updateStockCard(symbol);
+                }
+                
+                // Update analysis if available
+                if (result.analysis) {
+                    analysisCache.set(symbol, result.analysis);
+                    // Update chart if it's currently visible
+                    const chartContainer = document.getElementById('chartContainer');
+                    if (chartContainer && chartContainer.dataset.symbol === symbol) {
+                        await updateChart(symbol);
+                    }
+                }
+                
+                // Show success state briefly
+                text.textContent = 'Updated!';
+                button.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                button.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    text.textContent = 'Refresh';
+                    button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    button.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                }, 2000);
+                
+            } catch (error) {
+                console.error(`Error refreshing ${symbol}:`, error);
+                text.textContent = 'Error!';
+                button.classList.add('bg-red-600', 'hover:bg-red-700');
+                
+                // Show error message on card
+                if (errorMsg) {
+                    // Clean up error message for display
+                    let displayMessage = error.message || 'Failed to refresh data';
+                    // Remove any "Error: " prefix for cleaner display
+                    displayMessage = displayMessage.replace(/^Error:\s*/, '');
+                    errorMsg.textContent = displayMessage;
+                    errorMsg.classList.remove('hidden');
+                    // Add error styling
+                    errorMsg.classList.add('text-red-600', 'mt-2', 'text-sm');
+                }
+                
+                // Reset button after 3 seconds
+                setTimeout(() => {
+                    text.textContent = 'Refresh';
+                    button.classList.remove('bg-red-600', 'hover:bg-red-700');
+                    button.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                }, 3000);
+                
+            } finally {
+                // Re-enable button and stop spinning
+                button.disabled = false;
+                icon.classList.remove('animate-spin');
+            }
+        }
+
+        // Function to update stock card with data
+        async function updateStockCard(symbol) {
+            const priceInfo = document.querySelector(`.price-info[data-symbol="${symbol}"]`);
+            if (!priceInfo) {
+                console.warn(`Card not found for ${symbol}`);
+                return;
+            }
+
+            // Show loading state
+            const elements = priceInfo.querySelectorAll('.loading');
+            elements.forEach(el => {
+                el.classList.add('pulse-animation');
+                el.textContent = 'Loading...';
+            });
+
+            try {
+                // Check browser cache first
+                let data = stockDataCache.get(symbol);
+                
+                // If not in cache, fetch from API and cache it
+                if (!data) {
+                    console.log(`Fetching fresh data for ${symbol}`);
+                    data = await fetchStockData(symbol);
+                    if (!data) {
+                        console.error(`No data received for ${symbol}`);
+                        throw new Error('No data received');
+                    }
+                    stockDataCache.set(symbol, data);
+                    console.log(`Cached new data for ${symbol}:`, data);
+                } else {
+                    console.log(`Using cached data for ${symbol}:`, data);
+                }
+
+                // Get all elements
+                const priceElement = priceInfo.querySelector('.price-value');
+                const changeElement = priceInfo.querySelector('.change-value');
+                const volumeElement = priceInfo.querySelector('.volume-value');
+
+                // Validate data
+                if (!priceElement || !changeElement || !volumeElement) {
+                    console.error(`Missing elements in card for ${symbol}`);
+                    throw new Error('Card elements not found');
+                }
+
+                if (typeof data.price !== 'number' || typeof data.change !== 'number' || typeof data.volume !== 'number') {
+                    console.error(`Invalid data format for ${symbol}:`, data);
+                    throw new Error('Invalid data format');
+                }
+
+                // Update price
+                priceElement.textContent = `$${data.price.toFixed(2)}`;
+                priceElement.classList.remove('loading', 'pulse-animation');
+
+                // Update change
+                const changeText = (data.change >= 0 ? '+' : '') + data.change.toFixed(2) + '%';
+                changeElement.textContent = changeText;
+                changeElement.classList.remove('loading', 'pulse-animation');
+                changeElement.classList.remove('text-green-500', 'text-red-500');  // Remove old color
+                changeElement.classList.add(data.change >= 0 ? 'text-green-500' : 'text-red-500');
+
+                // Update volume
+                volumeElement.textContent = data.volume.toLocaleString();
+                volumeElement.classList.remove('loading', 'pulse-animation');
+
+                // Update loading indicator
+                const loadingIndicator = priceInfo.closest('.card').querySelector('.loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('opacity-0');
+                }
+
+            } catch (error) {
+                console.error(`Error updating card for ${symbol}:`, error);
+                const elements = priceInfo.querySelectorAll('.loading');
+                elements.forEach(el => {
+                    el.textContent = 'Error loading data';
+                    el.classList.add('text-red-500');
+                });
+            }
+        }
+
+        // Function to update all visible stock cards
+        function updateAllStockCards() {
+            const cards = document.querySelectorAll('.price-info');
+            cards.forEach(card => {
+                const symbol = card.dataset.symbol;
+                if (symbol) updateStockCard(symbol);
+            });
+        }
+
+        // Initialize segment dropdown
+        function initializeSegmentDropdown() {
+            const select = document.getElementById('segmentSelect');
+            Object.keys(stockData).forEach(segment => {
+                const option = document.createElement('option');
+                option.value = segment;
+                option.textContent = segment;
+                select.appendChild(option);
+            });
+        }
+
+        // Function to update stats
+        function updateStats(filteredStocks) {
+            const stats = {
+                total: filteredStocks.length,
+                gainers: 0,
+                strongBuy: 0,
+                active: 0
+            };
+
+            filteredStocks.forEach(symbol => {
+                const data = stockDataCache.get(symbol);
+                if (data) {
+                    if (data.change > 0) stats.gainers++;
+                    if (data.volume > 1000000) stats.active++;  // Arbitrary threshold
+                }
+                // Strong buy count will be updated when analysis is done
+            });
+
+            document.getElementById('totalStocks').textContent = stats.total;
+            document.getElementById('gainersCount').textContent = stats.gainers;
+            document.getElementById('activeCount').textContent = stats.active;
+        }
+
+        // Function to sort stocks
+        function sortStocks(stocks, sortBy) {
+            return [...stocks].sort((a, b) => {
+                const dataA = stockDataCache.get(a);
+                const dataB = stockDataCache.get(b);
+                
+                if (!dataA || !dataB) return 0;
+                
+                switch (sortBy) {
+                    case 'price':
+                        return dataB.price - dataA.price;
+                    case 'change':
+                        return dataB.change - dataA.change;
+                    case 'volume':
+                        return dataB.volume - dataA.volume;
+                    default:
+                        return a.localeCompare(b);
+                }
+            });
+        }
+
+        // Enhanced filter function with pagination
+        let currentPage = 1;
+        const itemsPerPage = 12;
+        let allFilteredSymbols = [];
+
+        async function filterStocks(segment = 'all', searchTerm = '', sortBy = 'symbol', page = 1) {
+            const grid = document.getElementById('stockGrid');
+            if (page === 1) {
+                grid.innerHTML = '<div class="col-span-full text-center p-4">Loading stocks...</div>';
+            }
+
+            // Get all matching symbols
+            if (page === 1) {
+                allFilteredSymbols = [];
+                if (segment === 'all') {
+                    Object.entries(stockData).forEach(([seg, stocks]) => {
+                        stocks.forEach(symbol => {
+                            if (symbol.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                allFilteredSymbols.push(symbol);
+                            }
+                        });
+                    });
+                } else {
+                    stockData[segment].forEach(symbol => {
+                        if (symbol.toLowerCase().includes(searchTerm.toLowerCase())) {
+                            allFilteredSymbols.push(symbol);
+                        }
+                    });
+                }
+
+                // Sort all symbols
+                allFilteredSymbols = sortStocks(allFilteredSymbols, sortBy);
+
+                // Update stats with total count
+                updateStats(allFilteredSymbols);
+            }
+
+            // Calculate pagination
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const symbolsToShow = allFilteredSymbols.slice(startIndex, endIndex);
+            currentPage = page;
+
+            // Clear grid on first page
+            if (page === 1) {
+                grid.innerHTML = '';
+            }
+
+            // Add cards for current page
+            symbolsToShow.forEach(symbol => {
+                const seg = Object.entries(stockData).find(([_, stocks]) => stocks.includes(symbol))[0];
+                grid.appendChild(createStockCard(symbol, seg));
+            });
+            
+            // Start fetching data for visible cards
+            await fetchStocksWithDelay(symbolsToShow);
+
+            // Add "Load More" button if there are more items
+            if (endIndex < allFilteredSymbols.length) {
+                const loadMoreContainer = document.createElement('div');
+                loadMoreContainer.className = 'col-span-full text-center py-4';
+                loadMoreContainer.innerHTML = `
+                    <button id="loadMoreBtn" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200">
+                        Load More (${allFilteredSymbols.length - endIndex} remaining)
+                    </button>
+                `;
+                grid.appendChild(loadMoreContainer);
+
+                document.getElementById('loadMoreBtn').addEventListener('click', () => {
+                    filterStocks(segment, searchTerm, sortBy, currentPage + 1);
+                });
+            }
+        }
+
+        // Event listeners for filters
+        document.getElementById('segmentSelect').addEventListener('change', (e) => {
+            filterStocks(
+                e.target.value,
+                document.getElementById('searchInput').value,
+                document.getElementById('sortBy').value
+            );
+        });
+
+        document.getElementById('sortBy').addEventListener('change', (e) => {
+            // Clear stock data cache when sorting changes as it might affect order
+            stockDataCache.clear();
+            filterStocks(
+                document.getElementById('segmentSelect').value,
+                document.getElementById('searchInput').value,
+                e.target.value
+            );
+        });
+
+        document.getElementById('windowPeriod').addEventListener('change', (e) => {
+            // Clear analysis cache when window changes
+            analysisCache.clear();
+        });
+
+        // Quick filter handlers
+        document.querySelectorAll('.quick-filter').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Update active state
+                document.querySelectorAll('.quick-filter').forEach(b => b.classList.remove('active', 'bg-blue-600'));
+                e.target.classList.add('active', 'bg-blue-600');
+                
+                // Apply filter
+                const filter = e.target.textContent.trim();
+                let sortBy = 'symbol';
+                switch (filter) {
+                    case 'Top Gainers':
+                        sortBy = 'change';
+                        break;
+                    case 'Most Active':
+                        sortBy = 'volume';
+                        break;
+                    case 'Strong Buy':
+                        // Handle strong buy filter
+                        break;
+                }
+                
+                document.getElementById('sortBy').value = sortBy;
+                filterStocks(
+                    document.getElementById('segmentSelect').value,
+                    document.getElementById('searchInput').value,
+                    sortBy
+                );
+            });
+        });
+
+        // Add Stock Modal Functions
+        function showAddStockModal() {
+            console.log('Opening add stock modal');
+            const modal = document.getElementById('addStockModal');
+            const segmentSelect = document.getElementById('newStockSegment');
+            
+            // Clear previous form data
+            document.getElementById('addStockForm').reset();
+            document.getElementById('addStockStatus').classList.add('hidden');
+            
+            // Populate segments dropdown
+            segmentSelect.innerHTML = '<option value="">Select Segment...</option>';
+            Object.values(StockSegment).forEach(segment => {
+                const option = document.createElement('option');
+                option.value = segment;
+                option.textContent = segment;
+                segmentSelect.appendChild(option);
+            });
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeAddStockModal() {
+            document.getElementById('addStockModal').classList.add('hidden');
+        }
+        
+        async function handleAddStock(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const spinner = submitBtn.querySelector('.spinner');
+            const statusDiv = document.getElementById('addStockStatus');
+            
+            // Get form data
+            const symbol = document.getElementById('newStockSymbol').value.trim().toUpperCase();
+            const segment = document.getElementById('newStockSegment').value;
+            const name = document.getElementById('newStockName').value.trim();
+            const description = document.getElementById('newStockDescription').value.trim();
+            
+            try {
+                // Disable form and show spinner
+                form.querySelectorAll('input, select, button').forEach(el => el.disabled = true);
+                spinner.classList.remove('hidden');
+                
+                // Show loading status
+                statusDiv.textContent = 'Validating and adding stock...';
+                statusDiv.className = 'text-sm text-blue-400';
+                statusDiv.classList.remove('hidden');
+                
+                // Call API to add stock
+                const response = await fetch('/api/stocks/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol, segment, name, description })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (response.status === 400 && data.detail.includes("already exists")) {
+                        // Stock exists - show info and highlight card
+                        statusDiv.textContent = data.detail;
+                        statusDiv.className = 'text-sm text-blue-400';
+                        
+                        // Scroll to existing card
+                        const card = document.querySelector(`.price-info[data-symbol="${symbol}"]`);
+                        if (card) {
+                            card.closest('.card').classList.add('ring-2', 'ring-blue-500');
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            setTimeout(() => {
+                                card.closest('.card').classList.remove('ring-2', 'ring-blue-500');
+                            }, 3000);
+                        }
+                        
+                        // Close modal after delay
+                        setTimeout(closeAddStockModal, 2000);
+                        return;
+                    }
+                    throw new Error(data.detail || 'Failed to add stock');
+                }
+                
+                // Show success message
+                statusDiv.textContent = 'Stock added successfully! Refreshing data...';
+                statusDiv.className = 'text-sm text-green-400';
+                
+                // Add new stock to stockData
+                if (!stockData[segment]) {
+                    stockData[segment] = [];
+                }
+                if (!stockData[segment].includes(symbol)) {
+                    stockData[segment].push(symbol);
+                }
+
+                // Refresh the stock list and ensure new card is created
+                await filterStocks(segment);  // Focus on the new stock's segment
+                
+                // Update the new card immediately
+                await updateStockCard(symbol);
+                
+                // Close modal after a delay
+                setTimeout(() => {
+                    closeAddStockModal();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error adding stock:', error);
+                statusDiv.textContent = error.message;
+                statusDiv.className = 'text-sm text-red-400';
+                
+                // Re-enable form
+                form.querySelectorAll('input, select, button').forEach(el => el.disabled = false);
+                
+            } finally {
+                spinner.classList.add('hidden');
+            }
+        }
+        
+        // Tab switching functionality
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-600');
+                btn.classList.add('bg-gray-700');
+            });
+            
+            // Show selected tab content
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.remove('hidden');
+            }
+            
+            // Activate selected tab button
+            const selectedBtn = document.querySelector(`.tab-btn[data-tab="${tabId.replace('-tab', '')}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active', 'bg-blue-600');
+                selectedBtn.classList.remove('bg-gray-700');
+            }
+
+            // If switching to segment overview, update the data
+            if (tabId === 'segment-overview-tab') {
+                updateSegmentOverview();
+            }
+        }
+
+        // Function to get all stocks performance data
+        async function getAllStocksData(days = 1) {
+            try {
+                const response = await fetch(`/api/stocks/all-stocks-performance?days=${days}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch stocks data');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching stocks data:', error);
+                throw error;
+            }
+        }
+
+        // Function to update segment overview
+        async function updateSegmentOverview() {
+            try {
+                console.log('Starting segment overview update...');
+                const periodSelect = document.getElementById('performancePeriod');
+                const days = parseInt(periodSelect.value);
+                console.log('Selected period:', days, 'days');
+                
+                // Show loading state
+                document.querySelectorAll('.performance-bar').forEach(bar => {
+                    bar.innerHTML = '<div class="animate-pulse bg-gray-700 h-full w-full"></div>';
+                });
+                
+                // Get all stocks and their performance data
+                console.log('Fetching stock data...');
+                const stocks = await getAllStocksData(days);
+                console.log('Received stocks data:', stocks);
+                
+                // Group stocks by segment and calculate performance
+                console.log('Grouping stocks by segment...');
+                const segmentData = {};
+                for (const stock of stocks) {
+                    const segment = stock.segment || 'Other';
+                    if (!segmentData[segment]) {
+                        segmentData[segment] = [];
+                    }
+                    segmentData[segment].push({
+                        symbol: stock.symbol,
+                        performance: stock.performance || 0
+                    });
+                }
+                
+                // Update the visualization
+                console.log('Updating visualization with segment data:', segmentData);
+                Object.entries(segmentData).forEach(([segment, stocks]) => {
+                    console.log(`Processing segment: ${segment} with ${stocks.length} stocks`);
+                    const segmentRow = document.querySelector(`.segment-row[data-segment="${segment}"]`);
+                    console.log('Found segment row:', !!segmentRow, segment);
+                    if (segmentRow) {
+                        const performanceBar = segmentRow.querySelector('.performance-bar');
+                        performanceBar.innerHTML = ''; // Clear existing content
+                        
+                        // Sort stocks by performance
+                        stocks.sort((a, b) => a.performance - b.performance);
+                        
+                        // Add stock items to the bar
+                        stocks.forEach(stock => {
+                            const stockItem = document.createElement('div');
+                            stockItem.className = 'stock-item';
+                            stockItem.textContent = stock.symbol;
+                            
+                            // Add performance-based color class
+                            if (stock.performance <= -5) stockItem.classList.add('perf-very-negative');
+                            else if (stock.performance < 0) stockItem.classList.add('perf-negative');
+                            else if (stock.performance === 0) stockItem.classList.add('perf-neutral');
+                            else if (stock.performance <= 5) stockItem.classList.add('perf-positive');
+                            else stockItem.classList.add('perf-very-positive');
+                            
+                            performanceBar.appendChild(stockItem);
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Error updating segment overview:', error);
+            }
+        }
+
+        // Add tab click handlers
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab + '-tab';
+                switchTab(tabId);
+            });
+        });
+
+        // Add period selection handler
+        document.getElementById('performancePeriod').addEventListener('change', () => {
+            updateSegmentOverview();
+        });
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOMContentLoaded event fired');
+            try {
+                console.log('Starting initialization...');
+                console.log('Checking if stockGrid exists:', !!document.getElementById('stockGrid'));
+
+                // Add event listeners first
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        filterStocks(
+                            document.getElementById('segmentSelect').value,
+                            e.target.value,
+                            document.getElementById('sortBy').value
+                        );
+                    });
+                }
+
+                // Add symbol validation
+                const symbolInput = document.getElementById('newStockSymbol');
+                if (symbolInput) {
+                    symbolInput.addEventListener('input', (e) => {
+                        const symbol = e.target.value.trim().toUpperCase();
+                        const validation = document.getElementById('symbolValidation');
+                        
+                        if (symbol && !/^[A-Z0-9]+$/.test(symbol)) {
+                            validation.textContent = 'Symbol must contain only letters and numbers';
+                            validation.className = 'mt-1 text-sm text-red-400';
+                            validation.classList.remove('hidden');
+                        } else {
+                            validation.classList.add('hidden');
+                        }
+                    });
+                }
+                
+                // Load stock configuration and registry
+                console.log('About to load stock data...');
+                try {
+                    await loadStockData();
+                    console.log('Stock data loaded successfully');
+                } catch (loadError) {
+                    console.error('Failed to load stock data:', loadError);
+                    throw loadError;
+                }
+                
+                // Initialize components
+                initializeDateInputs();
+                console.log('Date inputs initialized');
+                
+                // Load initial data for all stocks
+                console.log('Loading initial stock data...');
+                await updateAllStockCards();
+                console.log('Initial stock data loaded');
+            
+            } catch (error) {
+                console.error('Error during initialization:', error);
+                const grid = document.getElementById('stockGrid');
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="col-span-full p-4 bg-red-900 rounded-lg text-white">
+                            <h3 class="font-bold mb-2">Error During Initialization</h3>
+                            <p>${error.message}</p>
+                            <button onclick="location.reload()" class="mt-2 px-4 py-2 bg-red-700 hover:bg-red-800 rounded">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Add error handling function
+            window.showErrorOnCard = function(symbol, message) {
+                const priceInfo = document.querySelector(`.price-info[data-symbol="${symbol}"]`);
+                if (priceInfo) {
+                    const elements = priceInfo.querySelectorAll('.loading');
+                    elements.forEach(el => {
+                        el.textContent = message;
+                        el.classList.add('text-red-500');
+                    });
+                }
+            };
+
+            // Add click handler for add stock button
+            const addStockBtn = document.querySelector('[onclick="showAddStockModal()"]');
+            if (addStockBtn) {
+                addStockBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showAddStockModal();
+                });
+            }
+
+            // Add input handler for symbol validation
+            const symbolInput = document.getElementById('newStockSymbol');
+            if (symbolInput) {
+                symbolInput.addEventListener('input', (e) => {
+                    const symbol = e.target.value.trim().toUpperCase();
+                    const validation = document.getElementById('symbolValidation');
+                    
+                    if (symbol && !/^[A-Z0-9]+$/.test(symbol)) {
+                        validation.textContent = 'Symbol must contain only letters and numbers';
+                        validation.className = 'mt-1 text-sm text-red-400';
+                        validation.classList.remove('hidden');
+                    } else {
+                        validation.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Add form submit handler
+            const addStockForm = document.getElementById('addStockForm');
+            if (addStockForm) {
+                addStockForm.addEventListener('submit', handleAddStock);
+            }
+        });
+        
+    </script>
+</body>
+</html>
